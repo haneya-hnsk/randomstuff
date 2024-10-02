@@ -1,5 +1,7 @@
 # randomstuff
 
+https://drive.google.com/file/d/1II1dZylqjubuclV2W_u1hiApyzo2eTNd/view?usp=drivesdk
+
 https://tl.honorofkings.com/v2/tl/29134_1_O07ShxkF7dM
 
 
