@@ -1,3 +1,119 @@
+To display **text stats like an overlay** (e.g., health, score, level, or any live stat) in **Roblox Studio**, you'll use a **ScreenGui** with a **TextLabel** and update it with a **LocalScript**.
+
+Here’s how to make a **HUD-style text overlay** that shows live-updating values:
+
+---
+
+## 🎯 GOAL
+
+Display something like:
+
+```
+Health: 90
+Score: 1200
+Level: 5
+```
+
+On the screen at all times (like an overlay).
+
+---
+
+## ✅ Step-by-Step Guide
+
+### 1. 🖼 Create the GUI
+
+1. In the **Explorer**, go to `StarterGui`.
+2. Right-click `StarterGui` → `Insert Object` → `ScreenGui` → Rename it to `HUDGui`.
+3. Inside `HUDGui`, insert a `TextLabel`.
+
+   * Rename it `StatsLabel`.
+   * Customize the position (e.g., top-left corner: `Position = UDim2.new(0, 10, 0, 10)`).
+   * Set `Size` to something like `UDim2.new(0, 200, 0, 100)`.
+   * Set `BackgroundTransparency = 1` to make it invisible.
+   * Set `TextScaled = true` to auto-size the text.
+
+---
+
+### 2. 📜 Add a LocalScript to Update the Text
+
+Inside `StatsLabel`, insert a **LocalScript** and paste this code:
+
+```lua
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+local label = script.Parent
+
+-- Dummy stats (you can update with real ones)
+local score = 0
+local level = 1
+
+-- Example: Updating every 0.1 seconds
+while true do
+    local health = math.floor(humanoid.Health)
+    
+    label.Text = "Health: " .. health .. "\nScore: " .. score .. "\nLevel: " .. level
+    
+    -- Simulate score increase (just for testing)
+    score += 1
+    if score % 100 == 0 then
+        level += 1
+    end
+    
+    wait(0.1)
+end
+```
+
+> You can replace the `score` and `level` logic with your own system, like pulling values from `leaderstats` or another source.
+
+---
+
+## 🔁 Alternative: Show Leaderstats
+
+If you're using **leaderstats** (common for points, money, etc.):
+
+### Add this in the `LocalScript` instead:
+
+```lua
+local player = game.Players.LocalPlayer
+local label = script.Parent
+
+local function updateStats()
+    local stats = player:FindFirstChild("leaderstats")
+    if stats then
+        local score = stats:FindFirstChild("Score")
+        local level = stats:FindFirstChild("Level")
+        local scoreValue = score and score.Value or 0
+        local levelValue = level and level.Value or 1
+        
+        label.Text = "Score: " .. scoreValue .. "\nLevel: " .. levelValue
+    end
+end
+
+-- Update whenever stats change
+local stats = player:WaitForChild("leaderstats")
+for _, stat in ipairs(stats:GetChildren()) do
+    stat:GetPropertyChangedSignal("Value"):Connect(updateStats)
+end
+
+-- Initial update
+updateStats()
+```
+
+---
+
+## 🧠 Want Custom Design?
+
+You can:
+
+* Use `UIListLayout` for cleaner arrangement.
+* Add icons or images.
+* Add multiple `TextLabel`s instead of one.
+
+---
+
+Let me know what stat you want to display (Health? Score? EXP?) and I can tailor it for your case.
 Ah, got it! You want a **pop-up GUI** to appear when the player **touches an object**, and **it should work on multiple objects**. Here's how to do that in **Roblox Studio**.
 
 ---
