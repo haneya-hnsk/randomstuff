@@ -1,0 +1,112 @@
+Ah, got it! You want a **pop-up GUI** to appear when the player **touches an object**, and **it should work on multiple objects**. Here's how to do that in **Roblox Studio**.
+
+---
+
+## 🧱 Goal
+
+* When a player touches **any of several objects**, a **GUI pop-up** appears.
+* Works with multiple touchable objects.
+* GUI disappears after a while or on close.
+
+---
+
+## ✅ Step-by-Step Guide
+
+### 1. 🧊 Add the Touch Part(s)
+
+* Create a **Part** in the Workspace (e.g., a cube or sphere).
+* Rename it to something like `PopupTrigger1`, `PopupTrigger2`, etc.
+* Make sure **Anchored = true** so it doesn’t fall.
+* Optionally group multiple parts in a Folder like `TouchTriggers`.
+
+---
+
+### 2. 🎨 Make the GUI
+
+* In **StarterGui**, add a `ScreenGui`, name it something like `PopupGui`.
+* Inside it, add a `Frame` and design your pop-up window.
+* Inside the `Frame`, add a `TextLabel` or `TextButton` (like a "Close" button).
+* Set the `Frame.Visible = false` (hidden by default).
+
+---
+
+### 3. 🧠 Script to Show GUI on Touch
+
+#### a. Add a **LocalScript** in `StarterPlayerScripts`:
+
+This script listens to **RemoteEvents** when a part is touched.
+
+Right-click `StarterPlayer → StarterPlayerScripts` → `Insert Object → LocalScript`
+
+```lua
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local popupGui = player:WaitForChild("PlayerGui"):WaitForChild("PopupGui")
+local popupFrame = popupGui:WaitForChild("Frame")
+
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local showPopupEvent = replicatedStorage:WaitForChild("ShowPopup")
+
+showPopupEvent.OnClientEvent:Connect(function()
+    popupFrame.Visible = true
+
+    -- Optional: Auto close after 5 seconds
+    task.delay(5, function()
+        popupFrame.Visible = false
+    end)
+end)
+```
+
+#### b. Add a **RemoteEvent** in `ReplicatedStorage`
+
+* In **ReplicatedStorage**, add a `RemoteEvent`.
+* Rename it to `ShowPopup`.
+
+#### c. Add a **Script** in each Touch Part:
+
+Or reuse one script for all. Example for one:
+
+```lua
+local part = script.Parent
+local replicatedStorage = game:GetService("ReplicatedStorage")
+local showPopupEvent = replicatedStorage:WaitForChild("ShowPopup")
+
+part.Touched:Connect(function(hit)
+    local player = game.Players:GetPlayerFromCharacter(hit.Parent)
+    if player then
+        showPopupEvent:FireClient(player)
+    end
+end)
+```
+
+👉 You can copy this script into every touchable part **or** use a single script to connect them all.
+
+---
+
+## 🧩 Final Folder Structure
+
+```
+Workspace
+ └── PopupTrigger1 (with Script)
+ └── PopupTrigger2 (with Script)
+ReplicatedStorage
+ └── ShowPopup (RemoteEvent)
+StarterGui
+ └── PopupGui
+      └── Frame (Visible = false)
+StarterPlayer
+ └── StarterPlayerScripts
+      └── LocalScript (handles the GUI)
+```
+
+---
+
+## 🔁 Tips
+
+* You can add logic to show different messages per part.
+* Want only one-time touch? Add a `touched = true` flag.
+* Want it to show different GUI per object? Use parameters in `:FireClient(player, data)`.
+
+---
+
+Want me to pack this into a working `.rbxl` demo file for you to study?
