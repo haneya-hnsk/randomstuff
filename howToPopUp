@@ -1,3 +1,34 @@
+local npc = script.Parent
+local humanoid = npc:WaitForChild("Humanoid")
+
+-- Store last hitter
+local lastHitPlayer = nil
+
+-- Track who damaged the NPC
+humanoid.HealthChanged:Connect(function(currentHealth)
+	if currentHealth < humanoid.MaxHealth then
+		local tag = humanoid:FindFirstChild("creator")
+		if tag and tag.Value and tag.Value:IsA("Player") then
+			lastHitPlayer = tag.Value
+		end
+	end
+end)
+
+-- When NPC dies
+humanoid.Died:Connect(function()
+	if lastHitPlayer then
+		print(lastHitPlayer.Name .. " killed the NPC!")
+
+		-- Example: Give 10 score
+		local stats = lastHitPlayer:FindFirstChild("leaderstats")
+		if stats then
+			local score = stats:FindFirstChild("Score")
+			if score then
+				score.Value += 10
+			end
+		end
+	end
+end)
 To display **text stats like an overlay** (e.g., health, score, level, or any live stat) in **Roblox Studio**, you'll use a **ScreenGui** with a **TextLabel** and update it with a **LocalScript**.
 
 Here’s how to make a **HUD-style text overlay** that shows live-updating values:
