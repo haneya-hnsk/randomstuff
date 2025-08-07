@@ -1,0 +1,95 @@
+To **give the player 1 score every time they kill an NPC**, you need to:
+
+1. **Tag the player as the attacker** when they damage the NPC.
+2. **Detect the NPC’s death**.
+3. **Reward the killer** with 1 score.
+
+Here's a full setup:
+
+---
+
+## ✅ STEP-BY-STEP GUIDE
+
+### 🧱 1. Add a **leaderboard** (score system)
+
+In **ServerScriptService**, create a new Script called `Leaderboard`:
+
+```lua
+game.Players.PlayerAdded:Connect(function(player)
+	local stats = Instance.new("Folder")
+	stats.Name = "leaderstats"
+	stats.Parent = player
+
+	local score = Instance.new("IntValue")
+	score.Name = "Score"
+	score.Value = 0
+	score.Parent = stats
+end)
+```
+
+This adds a "Score" stat for each player.
+
+---
+
+### ⚔️ 2. Tag the player as the attacker (when using tools or damage)
+
+In your NPC’s **Humanoid**, when it takes damage, you need to tag the **creator** (who attacked).
+
+If you’re using a weapon (like a sword), add this when damaging the NPC:
+
+```lua
+-- Inside the tool script (like a sword or projectile)
+local function damageNPC(hit, attacker)
+	local humanoid = hit:FindFirstChild("Humanoid")
+	if humanoid and humanoid.Health > 0 then
+		humanoid:TakeDamage(20) -- or any value
+
+		-- Tag the attacker
+		local tag = Instance.new("ObjectValue")
+		tag.Name = "creator"
+		tag.Value = attacker -- this must be the Player
+		tag.Parent = humanoid
+
+		game.Debris:AddItem(tag, 2) -- remove tag after 2 seconds
+	end
+end
+```
+
+---
+
+### 💀 3. Detect NPC death and reward player
+
+Inside your **NPC model**, insert a **Script** like this:
+
+```lua
+local npc = script.Parent
+local humanoid = npc:WaitForChild("Humanoid")
+
+humanoid.Died:Connect(function()
+	local creatorTag = humanoid:FindFirstChild("creator")
+	if creatorTag and creatorTag.Value and creatorTag.Value:IsA("Player") then
+		local player = creatorTag.Value
+		local stats = player:FindFirstChild("leaderstats")
+		if stats then
+			local score = stats:FindFirstChild("Score")
+			if score then
+				score.Value += 1
+				print(player.Name .. " got a point! Score: " .. score.Value)
+			end
+		end
+	end
+end)
+```
+
+---
+
+## 🧪 How to Test
+
+1. Add `Score` in leaderboard script ✅
+2. Make sure the weapon sets the `creator` tag ✅
+3. Kill the NPC in play mode ✅
+4. Check the player’s score in the leaderboard (press **Tab** or check **Explorer**).
+
+---
+
+Let me know if you’re using **specific weapons**, **projectiles**, or want this for **multiple NPCs spawning automatically** – I can adjust it for your setup.
