@@ -1,0 +1,24 @@
+local ServerStorage = game:GetService("ServerStorage")
+local npcTemplate = ServerStorage:WaitForChild("NPC") -- Your NPC model
+local spawnLocation = workspace:WaitForChild("SpawnPoint") -- A part in workspace
+
+local spawnInterval = 5 -- Seconds between spawns
+local maxNPCs = 10 -- Maximum number of NPCs allowed at once
+
+while true do
+	wait(spawnInterval)
+
+	-- Count existing NPCs
+	local npcCount = 0
+	for _, obj in pairs(workspace:GetChildren()) do
+		if obj.Name == "NPC" and obj:FindFirstChild("Humanoid") then
+			npcCount += 1
+		end
+	end
+
+	if npcCount < maxNPCs then
+		local newNPC = npcTemplate:Clone()
+		newNPC.Parent = workspace
+		newNPC:MoveTo(spawnLocation.Position + Vector3.new(math.random(-5,5), 3, math.random(-5,5)))
+	end
+end
